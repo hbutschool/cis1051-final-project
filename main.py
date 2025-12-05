@@ -21,12 +21,21 @@ playerSpeed = 5
 
 bossWidth = 80
 bossHeight = 80
-bossX =(WIDTH - bossWidth) // 2
+bossX = (WIDTH - bossWidth) // 2
 bossY = 100
 bossSpeed = 10
 bossDirection = 1 # 1 = right, -1 = left
 
+bullets = []
+bulletWidth = 10
+bulletHeight = 10
+bulletAmount = 0 
+bulletCooldown = 30 # how many frames for ONE bullet
+bulletSpeed = 3
+
 while running == True:
+    screen.fill((255, 255, 255)) # IMPORTANT, redraws / update background???
+
     keys = pygame.key.get_pressed()
 
     for event in pygame.event.get():
@@ -43,15 +52,24 @@ while running == True:
         playerX += playerSpeed
 
     bossX += bossSpeed * bossDirection
-    
+
     if (bossX <= 0) or (bossX + bossWidth >= WIDTH):
             bossDirection *= -1
+    
+    bulletAmount += 1 # shoots one bullet
+
+    if bulletAmount >= bulletCooldown:
+        bullets.append({"x": bossX + bossWidth // 2 - bulletWidth // 2, "y": bossY, "speed": bulletSpeed})
+        bulletAmount = 0 # stop shooting
+
+    for bullet in bullets:
+         bullet["y"] += bullet["speed"]
+         pygame.draw.rect(screen, (255, 0, 0), (bullet["x"], bullet["y"], bulletWidth, bulletHeight))
 
     # make sure player stay inside the window
     playerX = max(0, min(WIDTH - playerWidth, playerX))
     playerY = max(0, min(HEIGHT - playerHeight, playerY))
 
-    screen.fill((255, 255, 255)) # IMPORTANT, redraws / update background???
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight))
     pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY, bossWidth, bossHeight))
 
