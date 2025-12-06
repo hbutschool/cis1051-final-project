@@ -18,12 +18,12 @@ playerWidth = 50
 playerHeight = 50
 playerX = WIDTH // 2 # initial x pos
 playerY = HEIGHT - 100 # initial y pos
-playerSpeed = 10
+playerSpeed = 7
 playerHearts = 3
 playerLives = 10
 
-boxWidth = int(WIDTH * 0.70)
-boxHeight = int(HEIGHT * 0.70)
+boxWidth = int(WIDTH * 0.60)
+boxHeight = int(HEIGHT * 0.60)
 boxX = (WIDTH - boxWidth) // 2
 boxY = (HEIGHT - boxHeight) // 2
 
@@ -33,6 +33,9 @@ bossX = (WIDTH - bossWidth) // 2
 bossY = 100
 bossSpeed = 10
 bossDirection = 1 # 1 = right, -1 = left
+
+bossImage = pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1).gif").convert_alpha()
+bossImage = pygame.transform.scale(bossImage, (bossWidth, bossHeight))
 
 bullets = []
 bulletWidth = 10
@@ -110,7 +113,7 @@ while running == True:
 
     pygame.draw.rect(screen, (200, 200, 200), (boxX, boxY, boxWidth, boxHeight), 10) # box
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight)) # player
-    pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY, bossWidth, bossHeight)) # boss
+    screen.blit(bossImage, (bossX, bossY)) # boss
 
     for i in range(playerHearts):
          pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
