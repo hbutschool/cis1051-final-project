@@ -18,6 +18,8 @@ playerHeight = 50
 playerX = WIDTH // 2 # initial x pos
 playerY = HEIGHT - 100 # initial y pos
 playerSpeed = 5
+playerHearts = 3
+playerLives = 10
 
 bossWidth = 80
 bossHeight = 80
@@ -66,12 +68,37 @@ while running == True:
          bullet["y"] += bullet["speed"]
          pygame.draw.rect(screen, (255, 0, 0), (bullet["x"], bullet["y"], bulletWidth, bulletHeight))
 
+         playerRect = pygame.Rect(playerX, playerY, playerWidth, playerHeight)
+         bulletRect = pygame.Rect(bullet["x"], bullet["y"], bulletWidth, bulletHeight)
+
+         if playerRect.colliderect(bulletRect):
+              playerHearts -= 1
+        
+              bullets.remove(bullet)
+
+              if playerHearts <= 0:
+                  playerLives -= 1
+
+                  if playerLives <= 0:
+                       print("GAME OVER")
+
+                       running = False
+                  else:
+                       playerHearts = 3
+                       
+
     # make sure player stay inside the window
     playerX = max(0, min(WIDTH - playerWidth, playerX))
     playerY = max(0, min(HEIGHT - playerHeight, playerY))
 
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight))
     pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY, bossWidth, bossHeight))
+
+    for i in range(playerHearts):
+         pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
+
+    for i in range(playerLives):
+         pygame.draw.rect(screen, (0, 255, 0), (10 + i * 25, 40, 20, 20)) # ^ same with lives (dont change numbers)
 
     pygame.display.flip()
     clock.tick(FRAMES)
