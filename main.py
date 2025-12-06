@@ -18,7 +18,7 @@ playerWidth = 50
 playerHeight = 50
 playerX = WIDTH // 2 # initial x pos
 playerY = HEIGHT - 100 # initial y pos
-playerSpeed = 5
+playerSpeed = 10
 playerHearts = 3
 playerLives = 10
 
@@ -49,15 +49,26 @@ while running == True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
+    dx = 0
+    dy = 0
 
     if keys[pygame.K_w]:
-        playerY -= playerSpeed
+        dy -= playerSpeed
     if keys[pygame.K_s]:
-        playerY += playerSpeed
+        dy += playerSpeed
     if keys[pygame.K_a]:
-        playerX -= playerSpeed
+        dx -= playerSpeed
     if keys[pygame.K_d]:
-        playerX += playerSpeed
+        dx += playerSpeed
+
+    if dx != 0 or dy != 0:
+         length = (dx**2 + dy**2) ** 0.5
+         dx = (dx / length) * playerSpeed
+         dy = (dy / length) * playerSpeed
+
+    playerX += dx
+    playerY += dy
 
     bossX += bossSpeed * bossDirection
 
