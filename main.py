@@ -1,3 +1,4 @@
+from re import S
 import pygame
 
 # https://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/creating-pygame-window/
@@ -20,6 +21,11 @@ playerY = HEIGHT - 100 # initial y pos
 playerSpeed = 5
 playerHearts = 3
 playerLives = 10
+
+boxWidth = int(WIDTH * 0.70)
+boxHeight = int(HEIGHT * 0.70)
+boxX = (WIDTH - boxWidth) // 2
+boxY = (HEIGHT - boxHeight) // 2
 
 bossWidth = 80
 bossHeight = 80
@@ -88,11 +94,12 @@ while running == True:
                        
 
     # make sure player stay inside the window
-    playerX = max(0, min(WIDTH - playerWidth, playerX))
-    playerY = max(0, min(HEIGHT - playerHeight, playerY))
+    playerX = max(boxX, min(boxX + boxWidth - playerWidth, playerX))
+    playerY = max(boxY, min(boxY + boxHeight - playerHeight, playerY))
 
-    pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight))
-    pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY, bossWidth, bossHeight))
+    pygame.draw.rect(screen, (200, 200, 200), (boxX, boxY, boxWidth, boxHeight), 10) # box
+    pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight)) # player
+    pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY, bossWidth, bossHeight)) # boss
 
     for i in range(playerHearts):
          pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
