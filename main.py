@@ -1,3 +1,4 @@
+import math
 from re import S
 import pygame
 
@@ -12,7 +13,7 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode(((WIDTH, HEIGHT)))
 # screen.fill((255, 255, 255))  # background (plain color, note: how to set as image?)
 
-pygame.display.set_caption("Terraria Bullet Game")
+pygame.display.set_caption("hello world")
 
 playerWidth = 50
 playerHeight = 50
@@ -33,6 +34,12 @@ boxHeight = int(HEIGHT * 0.60)
 boxX = (WIDTH - boxWidth) // 2
 boxY = (HEIGHT - boxHeight) // 2
 
+circleCenterX = boxX + boxWidth // 2
+circleCenterY = boxY + boxHeight // 2
+circleRadius = min(boxWidth, boxHeight) // 2 + 50
+circleAngle = 0
+circleSpeed = 0.02
+
 bossWidth = 80
 bossHeight = 80
 bossX = (WIDTH - bossWidth) // 2
@@ -49,7 +56,7 @@ eye1 = [
 eye1 = [pygame.transform.scale(frame, (bossWidth, bossHeight)) for frame in eye1]
 
 bossFrameIndex = 0
-bossAnimationSpeed = 20 # higher num, slower animation
+bossAnimationSpeed = 15 # higher num, slower animation
 bossFrameCounter = 0
 
 bullets = []
@@ -114,15 +121,14 @@ while running == True:
     playerX += dx
     playerY += dy
 
-    bossX += bossSpeed * bossDirection
-
     bossFrameCounter += 1
     if bossFrameCounter >= bossAnimationSpeed:
         bossFrameCounter = 0
         bossFrameIndex = (bossFrameIndex + 1) % len(eye1)
 
-    if (bossX <= 0) or (bossX + bossWidth >= WIDTH):
-            bossDirection *= -1
+    circleAngle += circleSpeed
+    bossX = circleCenterX + math.cos(circleAngle) * circleRadius - bossWidth // 2
+    bossY = circleCenterY + math.sin(circleAngle) * circleRadius - bossHeight // 2
     
     bulletAmount += 1 # shoots one bullet
 
@@ -153,7 +159,8 @@ while running == True:
             bossHp -= 1
             playerBullets.remove(bullet)
 
-        if bullet["y"] < 0:
+        if (bullet["x"] < boxX or bullet["x"] + playerBulletWidth > boxX + boxWidth or
+            bullet["y"] < boxY or bullet["y"] + playerBulletHeight > boxY + boxHeight):
             playerBullets.remove(bullet)
 
     for bullet in bullets[:]:
