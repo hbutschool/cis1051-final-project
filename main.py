@@ -22,6 +22,12 @@ playerSpeed = 7
 playerHearts = 3
 playerLives = 10
 
+heartImg = pygame.image.load("Sprite/Heart.png").convert_alpha()
+heartImg = pygame.transform.scale(heartImg, (20, 20))
+
+livesImg = pygame.image.load("Sprite/Life_Fruit.png").convert_alpha()
+livesImg = pygame.transform.scale(livesImg, (20, 20))
+                                  
 boxWidth = int(WIDTH * 0.60)
 boxHeight = int(HEIGHT * 0.60)
 boxX = (WIDTH - boxWidth) // 2
@@ -40,8 +46,7 @@ eye1 = [
     pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(2).png").convert_alpha(),
     pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(3).png").convert_alpha(),]
 
-
-eye1 = [pygame.transform.scale(i, (bossWidth, bossHeight)) for i in eye1]
+eye1 = [pygame.transform.scale(frame, (bossWidth, bossHeight)) for frame in eye1]
 
 bossFrameIndex = 0
 bossAnimationSpeed = 20 # higher num, slower animation
@@ -53,6 +58,13 @@ bulletHeight = 10
 bulletAmount = 0 
 bulletCooldown = 30 # how many frames for ONE bullet
 bulletSpeed = 3
+
+Servant = [
+    pygame.image.load("Sprite/Servant_of_Cthulhu_1.png").convert_alpha(),
+    pygame.image.load("Sprite/Servant_of_Cthulhu_2.png").convert_alpha(),]
+
+Servant = [pygame.transform.scale(img, (bulletWidth, bulletHeight)) for img in Servant]
+Servant = [pygame.transform.rotate(img, 90) for img in Servant]
 
 playerBullets = []
 playerBulletWidth = 8
@@ -93,7 +105,7 @@ while running == True:
         dx -= playerSpeed
     if keys[pygame.K_d]:
         dx += playerSpeed
-
+    # fixed diagonal going 41% faster
     if dx != 0 or dy != 0:
          length = (dx**2 + dy**2) ** 0.5
          dx = (dx / length) * playerSpeed
@@ -115,31 +127,14 @@ while running == True:
     bulletAmount += 1 # shoots one bullet
 
     if bulletAmount >= bulletCooldown:
-        bullets.append({"x": bossX + bossWidth // 2 - bulletWidth // 2, "y": bossY, "speed": bulletSpeed})
-        bulletAmount = 0 # stop shooting
-
-    for bullet in bullets:
-         bullet["y"] += bullet["speed"]
-         pygame.draw.rect(screen, (255, 0, 0), (bullet["x"], bullet["y"], bulletWidth, bulletHeight))
-
-         playerRect = pygame.Rect(playerX, playerY, playerWidth, playerHeight)
-         bulletRect = pygame.Rect(bullet["x"], bullet["y"], bulletWidth, bulletHeight)
-
-         if playerRect.colliderect(bulletRect):
-              playerHearts -= 1
-        
-              bullets.remove(bullet)
-
-              if playerHearts <= 0:
-                  playerLives -= 1
-
-                  if playerLives <= 0:
-                       print("GAME OVER")
-
-                       running = False
-                  else:
-                       playerHearts = 3
-                       
+        bullets.append({
+            "x": bossX + bossWidth // 2 - bulletWidth // 2,
+            "y": bossY,
+            "speed": bulletSpeed,
+            "frame": 0,
+            "counter": 0
+        })
+        bulletAmount = 0
 
     # make sure player stay inside the window
     playerX = max(boxX, min(boxX + boxWidth - playerWidth, playerX))
@@ -151,15 +146,43 @@ while running == True:
         bullet["y"] -= bullet["speed"]
         pygame.draw.rect(screen, (0, 0, 0), (bullet["x"], bullet["y"], playerBulletWidth, playerBulletHeight))
 
+        bossRect = pygame.Rect(bossX, bossY, bossWidth, bossHeight)
         bulletRect = pygame.Rect(bullet["x"], bullet["y"], playerBulletWidth, playerBulletHeight)
 
         if bossRect.colliderect(bulletRect):
             bossHp -= 1
             playerBullets.remove(bullet)
 
-            if bossHp <= 0:
-                 print("YOU WIN")
-                 running = False
+        if bullet["y"] < 0:
+            playerBullets.remove(bullet)
+
+    for bullet in bullets[:]:
+        bullet["y"] += bullet["speed"]
+        bullet["counter"] += 1
+        if bullet["counter"] >= 5:
+            bullet["counter"] = 0
+            bullet["frame"] = (bullet["frame"] + 1) % len(Servant)
+
+        currentFrame = Servant[bullet["frame"]]
+        screen.blit(currentFrame, (bullet["x"], bullet["y"]))
+
+        playerRect = pygame.Rect(playerX, playerY, playerWidth, playerHeight)
+        bulletRect = pygame.Rect(bullet["x"], bullet["y"], bulletWidth, bulletHeight)
+
+        if playerRect.colliderect(bulletRect):
+            playerHearts -= 1
+            bullets.remove(bullet)
+
+            if playerHearts <= 0:
+                playerLives -= 1
+                if playerLives <= 0:
+                    print("GAME OVER")
+                    running = False
+                else:
+                    playerHearts = 3
+
+        if bullet["y"] > HEIGHT:
+            bullets.remove(bullet)
 
     barWidth = bossWidth
     barHeight = 10
@@ -173,10 +196,10 @@ while running == True:
     screen.blit(eye1[bossFrameIndex], (bossX, bossY)) # boss ???
 
     for i in range(playerHearts):
-         pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
+         screen.blit(heartImg, (10 + i * 30, 10)) # scuffed way to display hearts lol (dont change numbers)
 
     for i in range(playerLives):
-         pygame.draw.rect(screen, (0, 255, 0), (10 + i * 25, 40, 20, 20)) # ^ same with lives (dont change numbers)
+         screen.blit(livesImg, (10 + i * 25, 40)) # ^ same with lives (dont change numbers)
 
     pygame.display.flip()
     clock.tick(FRAMES)
