@@ -133,12 +133,19 @@ while running == True:
     bulletAmount += 1 # shoots one bullet
 
     if bulletAmount >= bulletCooldown:
+        dx = (playerX + playerWidth // 2) - (bossX + bossWidth // 2)
+        dy = (playerY + playerHeight // 2) - (bossY + bossHeight // 2)
+        distance = (dx ** 2 + dy ** 2) ** 0.5
+        velocityX = (dx / distance) * bulletSpeed
+        velocityY = (dy / distance) * bulletSpeed
+
         bullets.append({
             "x": bossX + bossWidth // 2 - bulletWidth // 2,
             "y": bossY,
-            "speed": bulletSpeed,
+            "vx": velocityX,
+            "vy": velocityY,
             "frame": 0,
-            "counter": 0
+            "counter": 0,
         })
         bulletAmount = 0
 
@@ -164,12 +171,14 @@ while running == True:
             playerBullets.remove(bullet)
 
     for bullet in bullets[:]:
-        bullet["y"] += bullet["speed"]
+        bullet["x"] += bullet["vx"]
+        bullet["y"] += bullet["vy"]
         bullet["counter"] += 1
         if bullet["counter"] >= 5:
             bullet["counter"] = 0
             bullet["frame"] = (bullet["frame"] + 1) % len(Servant)
 
+        angle = math.degrees(math.atan2(bullet["vy"], bullet["vx"]))
         currentFrame = Servant[bullet["frame"]]
         screen.blit(currentFrame, (bullet["x"], bullet["y"]))
 
@@ -200,7 +209,14 @@ while running == True:
 
     pygame.draw.rect(screen, (200, 200, 200), (boxX, boxY, boxWidth, boxHeight), 10) # box
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight)) # player
-    screen.blit(eye1[bossFrameIndex], (bossX, bossY)) # boss ???
+    bossX = circleCenterX + math.cos(circleAngle) * circleRadius - bossWidth // 2
+    bossY = circleCenterY + math.sin(circleAngle) * circleRadius - bossHeight // 2
+    dx = circleCenterX - (bossX + bossWidth / 2)
+    dy = circleCenterY - (bossY + bossHeight / 2)
+    angle = math.degrees(math.atan2(dy, dx))
+    rotatedBoss = pygame.transform.rotate(eye1[bossFrameIndex], -angle + 90)
+    rotatedRect = rotatedBoss.get_rect(center=(bossX + bossWidth / 2, bossY + bossHeight / 2))
+    screen.blit(rotatedBoss, rotatedRect.topleft) # boss ???
 
     for i in range(playerHearts):
          screen.blit(heartImg, (10 + i * 30, 10)) # scuffed way to display hearts lol (dont change numbers)
