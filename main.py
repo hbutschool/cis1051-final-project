@@ -33,6 +33,7 @@ bossX = (WIDTH - bossWidth) // 2
 bossY = 100
 bossSpeed = 10
 bossDirection = 1 # 1 = right, -1 = left
+bossHp = 30
 
 eye1 = [
     pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(1).png").convert_alpha(),
@@ -53,10 +54,29 @@ bulletAmount = 0
 bulletCooldown = 30 # how many frames for ONE bullet
 bulletSpeed = 3
 
+playerBullets = []
+playerBulletWidth = 8
+playerBulletHeight = 15
+playerBulletSpeed = 7
+playerShootCooldown = 15
+playerShootTimer = 0
+
 while running == True:
     screen.fill((255, 255, 255)) # IMPORTANT, redraws / update background???
 
     keys = pygame.key.get_pressed()
+
+    playerShootTimer += 1
+
+    if keys[pygame.K_SPACE] and playerShootTimer >= playerShootCooldown:
+        playerBullets.append({
+            "x": playerX + playerWidth // 2 - playerBulletWidth // 2,
+            "y": playerY,
+            "speed": playerBulletSpeed
+        })
+
+        playerShootTimer = 0
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -125,9 +145,32 @@ while running == True:
     playerX = max(boxX, min(boxX + boxWidth - playerWidth, playerX))
     playerY = max(boxY, min(boxY + boxHeight - playerHeight, playerY))
 
+    bossRect = pygame.Rect(bossX, bossY, bossWidth, bossHeight)
+
+    for bullet in playerBullets[:]:
+        bullet["y"] -= bullet["speed"]
+        pygame.draw.rect(screen, (0, 0, 0), (bullet["x"], bullet["y"], playerBulletWidth, playerBulletHeight))
+
+        bulletRect = pygame.Rect(bullet["x"], bullet["y"], playerBulletWidth, playerBulletHeight)
+
+        if bossRect.colliderect(bulletRect):
+            bossHp -= 1
+            playerBullets.remove(bullet)
+
+            if bossHp <= 0:
+                 print("YOU WIN")
+                 running = False
+
+    barWidth = bossWidth
+    barHeight = 10
+    barRatio = bossHp / 30
+    # health bar
+    pygame.draw.rect(screen, (255, 0, 0), (bossX, bossY - 20, barWidth * barRatio, barHeight))
+    pygame.draw.rect(screen, (0, 0, 0), (bossX, bossY - 20, barWidth, barHeight), 2)
+
     pygame.draw.rect(screen, (200, 200, 200), (boxX, boxY, boxWidth, boxHeight), 10) # box
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight)) # player
-    screen.blit(eye1[bossFrameIndex], (bossX, bossY)) # boss
+    screen.blit(eye1[bossFrameIndex], (bossX, bossY)) # boss ???
 
     for i in range(playerHearts):
          pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
