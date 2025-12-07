@@ -34,8 +34,17 @@ bossY = 100
 bossSpeed = 10
 bossDirection = 1 # 1 = right, -1 = left
 
-bossImage = pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1).gif").convert_alpha()
-bossImage = pygame.transform.scale(bossImage, (bossWidth, bossHeight))
+eye1 = [
+    pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(1).png").convert_alpha(),
+    pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(2).png").convert_alpha(),
+    pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_1)_(3).png").convert_alpha(),]
+
+
+eye1 = [pygame.transform.scale(i, (bossWidth, bossHeight)) for i in eye1]
+
+bossFrameIndex = 0
+bossAnimationSpeed = 20 # higher num, slower animation
+bossFrameCounter = 0
 
 bullets = []
 bulletWidth = 10
@@ -75,6 +84,11 @@ while running == True:
 
     bossX += bossSpeed * bossDirection
 
+    bossFrameCounter += 1
+    if bossFrameCounter >= bossAnimationSpeed:
+        bossFrameCounter = 0
+        bossFrameIndex = (bossFrameIndex + 1) % len(eye1)
+
     if (bossX <= 0) or (bossX + bossWidth >= WIDTH):
             bossDirection *= -1
     
@@ -113,7 +127,7 @@ while running == True:
 
     pygame.draw.rect(screen, (200, 200, 200), (boxX, boxY, boxWidth, boxHeight), 10) # box
     pygame.draw.rect(screen, (0, 0, 255), (playerX, playerY, playerWidth, playerHeight)) # player
-    screen.blit(bossImage, (bossX, bossY)) # boss
+    screen.blit(eye1[bossFrameIndex], (bossX, bossY)) # boss
 
     for i in range(playerHearts):
          pygame.draw.rect(screen, (255, 0, 0), (10 + i * 30, 10, 20, 20)) # scuffed way to display hearts lol (dont change numbers)
