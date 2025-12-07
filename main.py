@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode(((WIDTH, HEIGHT)))
 # screen.fill((255, 255, 255))  # background (plain color, note: how to set as image?)
 
-pygame.display.set_caption("hello world")
+pygame.display.set_caption("Terraria Bullet Game")
 
 playerWidth = 50
 playerHeight = 50
