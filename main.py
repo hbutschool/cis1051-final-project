@@ -170,7 +170,8 @@ def bossBulletHandler(screen, boss, player, servantParam):
             bullet["count"] = 0
             bullet["frame"] = (bullet["frame"] + 1) % len(servantParam)
 
-        pygame.draw.rect(screen, (255,0,255), (bullet["x"], bullet["y"], 10, 10))
+        frame = servantParam[bullet["frame"]]
+        screen.blit(frame, (bullet["x"], bullet["y"]))
         playerRect = pygame.Rect(player["posX"], player["posY"], player["width"], player["height"])
         bulletRect = pygame.Rect(bullet["x"], bullet["y"], 10, 10)
 
