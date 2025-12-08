@@ -327,7 +327,6 @@ def bossBulletHandler(screen, boss, player, servantParam):
     return True
 
 def draw(screen, player, boss):
-    global gameWon
     screen.blit(background, (0, 0))
     mouseX, mouseY = pygame.mouse.get_pos()
 
