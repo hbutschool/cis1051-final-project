@@ -394,10 +394,6 @@ while running:
         draw(screen, player, boss)       
         playerBulletHandler(screen, player, boss)
         isPlayerAlive = bossBulletHandler(screen, boss, player, servant)
-    
-    if isPlayerAlive == False:
-        print("GAME OVER")
-        gameOver = True
 
     if isPlayerAlive == False:
         print("GAME OVER")
