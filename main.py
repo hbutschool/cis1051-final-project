@@ -79,7 +79,7 @@ eye_phase2 = [
     pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_2)_(2).png").convert_alpha(),
     pygame.image.load("Sprite/Eye_of_Cthulhu_(Phase_2)_(3).png").convert_alpha()
 ]
-#eye = [pygame.transform.scale(frame, (boss["width"], boss["height"])) for frame in eye]
+
 boss["frames"] = eye
 
 boss["width"] = eye[0].get_width()
