@@ -46,6 +46,8 @@ boss = {
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+background = pygame.image.load("Sprite/Background.webp").convert()
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 pygame.display.set_caption("Bullet Hell Game")
 clock = pygame.time.Clock()
 
@@ -189,7 +191,7 @@ def bossBulletHandler(screen, boss, player, servantParam):
     return True
 
 def draw(screen, player, boss):
-    screen.fill((255,255,255))
+    screen.blit(background, (0, 0))
 
     pygame.draw.rect(screen, (200,200,200), (boxX, boxY, boxWidth, boxHeight), 10)
     pygame.draw.rect(screen, (0,0,255), (player["posX"], player["posY"], player["width"], player["height"]))
