@@ -46,7 +46,7 @@ boss = {
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-background = pygame.image.load("Sprite/Background.webp").convert()
+background = pygame.image.load("Sprite/background.webp").convert()
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 pygame.display.set_caption("Bullet Hell Game")
 clock = pygame.time.Clock()
@@ -88,17 +88,34 @@ def inputHandler(player):
         dx += player["speed"]
 
     if dx != 0 or dy != 0:
-        length = (dx ** 2 + dy ** 2) ** 0.5
+        length = math.hypot(dx, dy)
         dx = (dx / length) * player["speed"]
         dy = (dy / length) * player["speed"]
 
     player["shootTimer"] += 1
 
     if keys[pygame.K_SPACE] and player["shootTimer"] >= player["shootCooldown"]:
+        mouseX, mouseY = pygame.mouse.get_pos()
+
+        playerX = player["posX"] + player["width"] // 2
+        playerY = player["posY"] + player["height"] // 2
+
+        directionX = mouseX - playerX
+        directionY = mouseY - playerY
+        distance = math.hypot(directionX, directionY)
+
+        if distance != 0:
+            vx = (directionX / distance) * 10
+            vy = (directionY / distance) * 10
+        else:
+            vx = 0
+            vy = -10
+
         player["bullets"].append({
-            "x": player["posX"] + player["width"] // 2 - 4,
-            "y": player["posY"],
-            "speed": 7
+            "x": playerX,
+            "y": playerY,
+            "vx": vx,
+            "vy": vy
         })
 
         player["shootTimer"] = 0
@@ -146,16 +163,19 @@ def playerBulletHandler(screen, player, boss):
     bossRect = pygame.Rect(boss["posX"], boss["posY"], boss["width"], boss["height"])
 
     for bullet in player["bullets"][:]:
-        bullet["y"] -= bullet["speed"]
-        pygame.draw.rect(screen, (0,0,0), (bullet["x"], bullet["y"], 8, 15))
-        bulletRect = pygame.Rect(bullet["x"], bullet["y"], 8, 15)
+        bullet["x"] += bullet["vx"]
+        bullet["y"] += bullet["vy"]
+
+        pygame.draw.rect(screen, (0, 0, 0), (bullet["x"], bullet["y"], 8, 8))
+        bulletRect = pygame.Rect(bullet["x"], bullet["y"], 8, 8)
 
         if bossRect.colliderect(bulletRect):
             boss["hp"] -= 1
             player["bullets"].remove(bullet)
 
             continue
-        if bullet["x"] < boxX or bullet["x"] + 8 > boxX + boxWidth or bullet["y"] < boxY or bullet["y"] + 15 > boxY + boxHeight:
+
+        if (bullet["x"] < boxX or bullet["x"] > boxX + boxWidth or bullet["y"] < boxY or bullet["y"] > boxY + boxHeight):
             player["bullets"].remove(bullet)
 
             continue
@@ -193,9 +213,22 @@ def bossBulletHandler(screen, boss, player, servantParam):
 
 def draw(screen, player, boss):
     screen.blit(background, (0, 0))
+    mouseX, mouseY = pygame.mouse.get_pos()
 
     pygame.draw.rect(screen, (200,200,200), (boxX, boxY, boxWidth, boxHeight), 10)
-    pygame.draw.rect(screen, (0,0,255), (player["posX"], player["posY"], player["width"], player["height"]))
+
+    playerX = player["posX"] + player["width"] // 2
+    playerY = player["posY"] + player["height"] // 2
+
+    dx = mouseX - playerX
+    dy = mouseY - playerY
+
+    angle = -math.degrees(math.atan2(dy, dx)) - 90
+    playerSurface = pygame.Surface((player["width"], player["height"]), pygame.SRCALPHA)
+    pygame.draw.rect(playerSurface, (0, 0, 255), (0, 0, player["width"], player["height"]))
+    rotatedPlayer = pygame.transform.rotate(playerSurface, angle)
+    rect = rotatedPlayer.get_rect(center=(playerX, playerY))
+    screen.blit(rotatedPlayer, rect.topleft)
 
     dx = circleCenterX - (boss["posX"] + boss["width"] / 2)
     dy = circleCenterY - (boss["posY"] + boss["height"] / 2)
@@ -225,7 +258,6 @@ while running:
 
     updatePlayer(player, dx, dy)
     updateBoss(boss, player)
-
     draw(screen, player, boss)
 
     playerBulletHandler(screen, player, boss)
