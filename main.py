@@ -221,16 +221,6 @@ def updateBoss(boss, player):
                     )
                 boss["state"] = "circling"
 
-        elif boss["state"] == "returning":
-            dx = circleCenterX - boss["posX"]
-            dy = circleCenterY - boss["posY"]
-            dist = math.hypot(dx, dy)
-            if dist != 0:
-                boss["posX"] += (dx / dist) * boss["dashSpeed"]
-                boss["posY"] += (dy / dist) * boss["dashSpeed"]
-
-            if dist < boss["dashSpeed"]:
-                boss["state"] = "circling"
     else:
         boss["circleAngle"] += boss["circleSpeed"]
         boss["posX"] = circleCenterX + math.cos(boss["circleAngle"]) * boss["circleRadius"] - boss["width"] // 2
