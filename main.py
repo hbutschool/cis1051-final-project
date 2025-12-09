@@ -329,8 +329,6 @@ def draw(screen, player, boss):
     dy = mouseY - playerY
 
     angle = -math.degrees(math.atan2(dy, dx)) - 90
-    playerSurface = pygame.Surface((player["width"], player["height"]), pygame.SRCALPHA)
-    pygame.draw.rect(playerSurface, (0, 0, 255), (0, 0, player["width"], player["height"]))
     rotatedPlayer = pygame.transform.rotate(playerImg, angle)
     rect = rotatedPlayer.get_rect(center=(playerX, playerY))
     screen.blit(rotatedPlayer, rect.topleft)
